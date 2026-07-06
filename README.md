@@ -51,8 +51,9 @@
      - `created_at`：timestamptz，default `now()`
 
 3. 取得 Supabase 連線資訊
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`（或 `SUPABASE_ANON_KEY` 用於測試）
+   - `SUPABASE_URL`：Supabase 專案的網址，例如 `https://xxxxxx.supabase.co`
+   - `SUPABASE_SERVICE_ROLE_KEY`：Supabase Settings > API 中的 service_role key
+   - （如果只是測試，也可先使用 `SUPABASE_ANON_KEY`，但正式部署請用 `SUPABASE_SERVICE_ROLE_KEY`）
 
 4. 安裝 Vercel CLI
    ```powershell
@@ -63,7 +64,7 @@
    - 登入：`vercel login`
    - 設定專案資料夾：`cd "c:\Users\ptojf\Downloads\嘉蕭打卡系統"`
    - 設定環境變數：
-     - `SUPABASE_URL`
+     - `SUPABASE_URL`   
      - `SUPABASE_SERVICE_ROLE_KEY`
    - 部署：`vercel --prod`
 
