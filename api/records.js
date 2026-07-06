@@ -95,6 +95,16 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Debug endpoint: /api/records?debug=1 -> test connectivity to SUPABASE_URL
+    if (req.query && req.query.debug === '1') {
+      try {
+        const pingRes = await fetch(SUPABASE_URL, { method: 'GET' });
+        const text = await (pingRes.text().catch(() => ''));
+        return res.status(200).json({ ok: true, status: pingRes.status, bodyPreview: text.slice(0, 200) });
+      } catch (e) {
+        return res.status(500).json({ error: 'Supabase connectivity test failed', message: e.message, stack: e.stack ? e.stack.split('\n').slice(0,5) : undefined });
+      }
+    }
     if (req.method === "GET") {
       return await handleGet(req, res);
     }
