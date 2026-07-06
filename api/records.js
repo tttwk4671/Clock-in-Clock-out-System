@@ -98,11 +98,24 @@ module.exports = async (req, res) => {
     // Debug endpoint: /api/records?debug=1 -> test connectivity to SUPABASE_URL
     if (req.query && req.query.debug === '1') {
       try {
-        const pingRes = await fetch(SUPABASE_URL, { method: 'GET' });
-        const text = await (pingRes.text().catch(() => ''));
-        return res.status(200).json({ ok: true, status: pingRes.status, bodyPreview: text.slice(0, 200) });
+        const urlObj = new URL(SUPABASE_URL);
+        const dns = require('dns').promises;
+        let dnsInfo;
+        try {
+          dnsInfo = await dns.lookup(urlObj.hostname);
+        } catch (dnsErr) {
+          dnsInfo = { error: dnsErr.message };
+        }
+
+        try {
+          const pingRes = await fetch(SUPABASE_URL, { method: 'GET' });
+          const text = await (pingRes.text().catch(() => ''));
+          return res.status(200).json({ ok: true, status: pingRes.status, host: urlObj.hostname, dns: dnsInfo, bodyPreview: text.slice(0, 200) });
+        } catch (e) {
+          return res.status(500).json({ error: 'Supabase connectivity test failed', message: e.message, stack: e.stack ? e.stack.split('\n').slice(0,5) : undefined, host: urlObj.hostname, dns: dnsInfo });
+        }
       } catch (e) {
-        return res.status(500).json({ error: 'Supabase connectivity test failed', message: e.message, stack: e.stack ? e.stack.split('\n').slice(0,5) : undefined });
+        return res.status(500).json({ error: 'Debug failed', message: e.message, stack: e.stack ? e.stack.split('\n').slice(0,5) : undefined });
       }
     }
     if (req.method === "GET") {
