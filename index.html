@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>醫院 / 民護 打卡系統</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>醫院 & 民護 打卡系統</h1>
+      <p>選擇角色、選擇人員，點擊打卡即可記錄時間。</p>
+    </header>
+
+    <section class="card">
+      <div class="form-row">
+        <label for="roleSelect">選擇單位</label>
+        <select id="roleSelect">
+          <option value="hospital">醫院</option>
+          <option value="caregiver">民護</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="personSelect">選擇人員</label>
+        <select id="personSelect"></select>
+      </div>
+
+      <div class="form-row" id="vehicleRow" style="display:none;">
+        <label for="vehicleSelect">救護車車號</label>
+        <select id="vehicleSelect"></select>
+      </div>
+
+      <div class="button-row">
+        <button id="clockInButton" class="primary">上班打卡</button>
+        <button id="clockOutButton" class="secondary">下班打卡</button>
+      </div>
+
+      <div class="status" id="statusMessage"></div>
+    </section>
+
+    <section class="card records-card">
+      <div class="records-header">
+        <h2>打卡紀錄</h2>
+        <button id="clearButton" class="tertiary">清除紀錄</button>
+      </div>
+      <div class="form-row">
+        <label for="searchPersonInput">查詢人員</label>
+        <input id="searchPersonInput" type="text" placeholder="輸入人名，留空查全部" />
+      </div>
+      <div class="form-row">
+        <label for="recordTypeSelect">查詢類型</label>
+        <select id="recordTypeSelect">
+          <option value="all">全部</option>
+          <option value="in">上班</option>
+          <option value="out">下班</option>
+        </select>
+      </div>
+      <table id="recordsTable">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>角色</th>
+            <th>人員</th>
+            <th>救護車</th>
+            <th>類型</th>
+            <th>時間</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

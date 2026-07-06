@@ -1,0 +1,138 @@
+:root {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #2a3142;
+  --muted: #65748b;
+  --primary: #0066cc;
+  --secondary: #23a455;
+  --border: #d8e2ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Microsoft JhengHei", sans-serif;
+  background: linear-gradient(135deg, #e8eff9 0%, #f8f9fc 100%);
+  color: var(--text);
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px 40px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+header p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  margin-top: 24px;
+  box-shadow: 0 18px 40px rgba(49, 77, 118, 0.06);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+label {
+  font-weight: 600;
+}
+
+select,
+input[type="text"] {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 1rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.secondary {
+  background: var(--secondary);
+  color: #fff;
+}
+
+.tertiary {
+  background: #f1f5ff;
+  color: var(--text);
+}
+
+.status {
+  margin-top: 18px;
+  color: var(--muted);
+  min-height: 24px;
+}
+
+.records-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#recordsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#recordsTable th,
+#recordsTable td {
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 1px solid #edf1f7;
+}
+
+#recordsTable th {
+  background: #f8fbff;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .button-row {
+    flex-direction: column;
+  }
+}

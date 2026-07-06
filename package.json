@@ -1,0 +1,12 @@
+{
+  "name": "hospital-caregiver-clock-system",
+  "version": "1.0.0",
+  "description": "共享打卡系統：醫院、民護、救護車",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
