@@ -9,5 +9,11 @@
       "src": "*.{html,css,js}",
       "use": "@vercel/static"
     }
+  ],
+  "routes": [
+    {
+      "src": "/api/records",
+      "dest": "/api/records.js"
+    }
   ]
 }
