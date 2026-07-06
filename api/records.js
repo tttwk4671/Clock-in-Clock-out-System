@@ -4,13 +4,38 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 const TABLE_NAME = "records";
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("Supabase 環境變數尚未設定：SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY");
+function validateSupabaseEnv() {
+  if (!SUPABASE_URL) {
+    return "SUPABASE_URL is missing.";
+  }
+  if (!SUPABASE_KEY) {
+    return "SUPABASE_SERVICE_ROLE_KEY is missing.";
+  }
+  if (SUPABASE_URL.includes("/rest/v1")) {
+    return "SUPABASE_URL should be the base project URL, not the REST API URL (remove /rest/v1).";
+  }
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(SUPABASE_URL)) {
+    return "SUPABASE_URL looks invalid. Use the base URL like https://xxxxxx.supabase.co.";
+  }
+  if (/^https?:\/\//.test(SUPABASE_KEY)) {
+    return "SUPABASE_SERVICE_ROLE_KEY looks like a URL. Use the service_role secret key, not the URL.";
+  }
+  return null;
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: false },
-});
+const envError = validateSupabaseEnv();
+if (envError) {
+  console.error("Supabase 環境變數錯誤：", envError, {
+    SUPABASE_URL,
+    SUPABASE_KEY: SUPABASE_KEY ? `${SUPABASE_KEY.slice(0, 10)}...` : undefined,
+  });
+}
+
+const supabase = !envError
+  ? createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false },
+    })
+  : null;
 
 async function handleGet(req, res) {
   const { person, type } = req.query;
