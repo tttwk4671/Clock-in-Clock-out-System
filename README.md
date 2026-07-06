@@ -32,3 +32,53 @@
 ## 注意
 
 - 目前後端資料存放在本地 `records.json`，如果要多人共同使用，需將此專案部署到可公開訪問的伺服器。
+
+## Vercel + Supabase 部署
+
+1. 建立 Supabase 專案
+   - 登入 `https://supabase.com`
+   - 創建一個新專案
+
+2. 建立 `records` 資料表
+   - 欄位：
+     - `id`：bigint，Primary Key，自動遞增
+     - `date`：text
+     - `role`：text
+     - `person`：text
+     - `vehicle`：text
+     - `type`：text
+     - `time`：text
+     - `created_at`：timestamptz，default `now()`
+
+3. 取得 Supabase 連線資訊
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`（或 `SUPABASE_ANON_KEY` 用於測試）
+
+4. 安裝 Vercel CLI
+   ```powershell
+   npm install -g vercel
+   ```
+
+5. 部署到 Vercel
+   - 登入：`vercel login`
+   - 設定專案資料夾：`cd "c:\Users\ptojf\Downloads\嘉蕭打卡系統"`
+   - 設定環境變數：
+     - `SUPABASE_URL`
+     - `SUPABASE_SERVICE_ROLE_KEY`
+   - 部署：`vercel --prod`
+
+6. 本機測試
+   ```powershell
+   vercel dev
+   ```
+
+7. 產生的 API 路徑
+   - `GET /api/records`
+   - `POST /api/records`
+   - `DELETE /api/records`
+
+8. 使用方式
+   - 前端會透過 `script.js` 直接呼叫 `/api/records`
+   - 如果部署成功，前端資料會同步寫入 Supabase
+
+- 目前後端資料存放在本地 `records.json`，如果要多人共同使用，需將此專案部署到可公開訪問的伺服器。
