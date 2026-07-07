@@ -122,6 +122,16 @@ async function clearAllRecords() {
   return response.json();
 }
 
+async function deleteRecord(recordId) {
+  const response = await fetch(`${API_BASE}?id=${recordId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error("刪除失敗");
+  }
+  return response.json();
+}
+
 async function renderRecords() {
   const searchText = searchPersonInput.value.trim();
   const typeFilter = recordTypeSelect.value;
@@ -135,13 +145,14 @@ async function renderRecords() {
   recordsTableBody.innerHTML = "";
   if (records.length === 0) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td colspan="8" style="text-align:center; padding: 20px; color: #8c98a8;">目前沒有符合條件的打卡紀錄</td>`;
+    row.innerHTML = `<td colspan="10" style="text-align:center; padding: 20px; color: #8c98a8;">目前沒有符合條件的打卡紀錄</td>`;
     recordsTableBody.appendChild(row);
     return;
   }
   records.forEach((record) => {
     const row = document.createElement("tr");
     row.innerHTML = `
+      <td>${record.id}</td>
       <td>${record.date}</td>
       <td>${record.role === "hospital" ? "醫院" : record.role === "caregiver" ? "民護" : "救護車"}</td>
       <td>${record.person}</td>
@@ -150,6 +161,7 @@ async function renderRecords() {
       <td>${record.remarks || "-"}</td>
       <td>${record.type === "in" ? "上班" : "下班"}</td>
       <td>${record.time}</td>
+      <td><button class="delete-btn" onclick="deleteRecordAndRefresh(${record.id})">刪除</button></td>
     `;
     recordsTableBody.appendChild(row);
   });
@@ -214,6 +226,18 @@ clearButton.addEventListener("click", async () => {
     }
   }
 });
+
+async function deleteRecordAndRefresh(recordId) {
+  if (confirm(`確定要刪除編號 ${recordId} 的打卡紀錄嗎？`)) {
+    try {
+      await deleteRecord(recordId);
+      await renderRecords();
+      statusMessage.textContent = `✅ 已刪除編號 ${recordId} 的紀錄。`;
+    } catch (error) {
+      statusMessage.textContent = `❌ ${error.message}`;
+    }
+  }
+}
 
 populatePeople();
 renderRecords();
