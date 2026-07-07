@@ -7,6 +7,8 @@ const recordsTableBody = document.querySelector("#recordsTable tbody");
 const clearButton = document.getElementById("clearButton");
 const vehicleRow = document.getElementById("vehicleRow");
 const vehicleSelect = document.getElementById("vehicleSelect");
+const companionRow = document.getElementById("companionRow");
+const companionSelect = document.getElementById("companionSelect");
 const searchPersonInput = document.getElementById("searchPersonInput");
 const recordTypeSelect = document.getElementById("recordTypeSelect");
 
@@ -15,7 +17,7 @@ const personOptions = {
   caregiver: ["蕭妃機", "嘉成", "筱杰", "希大", "新開"],
 };
 
-const vehicleOptions = ["嘉蕭91", "嘉蕭92"];
+const vehicleOptions = ["嘉蕭91", "嘉蕭92", "勤務車41", "勤務車42"];
 const API_BASE = "/api/records";
 
 function formatDateTime(date) {
@@ -40,19 +42,42 @@ function populatePeople() {
 
   if (role === "caregiver") {
     vehicleRow.style.display = "flex";
+    companionRow.style.display = "flex";
     populateVehicles();
+    populateCompanion();
   } else {
     vehicleRow.style.display = "none";
+    companionRow.style.display = "none";
   }
 }
 
 function populateVehicles() {
   vehicleSelect.innerHTML = "";
+  const noneOption = document.createElement("option");
+  noneOption.value = "";
+  noneOption.textContent = "無";
+  vehicleSelect.appendChild(noneOption);
+  
   vehicleOptions.forEach((vehicle) => {
     const option = document.createElement("option");
     option.value = vehicle;
     option.textContent = vehicle;
     vehicleSelect.appendChild(option);
+  });
+}
+
+function populateCompanion() {
+  companionSelect.innerHTML = "";
+  const noneOption = document.createElement("option");
+  noneOption.value = "";
+  noneOption.textContent = "無";
+  companionSelect.appendChild(noneOption);
+  
+  personOptions.caregiver.forEach((name) => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    companionSelect.appendChild(option);
   });
 }
 
@@ -131,6 +156,7 @@ async function addRecord(type) {
   const role = roleSelect.value;
   const person = personSelect.value;
   const vehicle = role === "caregiver" ? vehicleSelect.value : "";
+  const companion = role === "caregiver" ? companionSelect.value : "";
   if (!person) {
     statusMessage.textContent = "請先選擇人員。";
     return;
@@ -148,14 +174,15 @@ async function addRecord(type) {
     day: "2-digit",
   });
   const time = formatDateTime(now).split(" ")[1];
-  const newRecord = { date, role, person, vehicle, type, time };
+  const newRecord = { date, role, person, vehicle, companion, type, time };
   try {
     await saveRecord(newRecord);
     statusMessage.textContent = "⏳ 正在重新載入...";
     await renderRecords();
     const roleLabel = role === "hospital" ? "醫院" : role === "caregiver" ? "民護" : "救護車";
-    const vehicleLabel = role === "caregiver" ? `，車號 ${vehicle}` : "";
-    statusMessage.textContent = `✅ ${roleLabel}：${person}${vehicleLabel}，已記錄${type === "in" ? "上班" : "下班"}時間 ${time}`;
+    const vehicleLabel = role === "caregiver" && vehicle ? `，車輛 ${vehicle}` : "";
+    const companionLabel = role === "caregiver" && companion ? `，隨車人員 ${companion}` : "";
+    statusMessage.textContent = `✅ ${roleLabel}：${person}${vehicleLabel}${companionLabel}，已記錄${type === "in" ? "上班" : "下班"}時間 ${time}`;
   } catch (error) {
     statusMessage.textContent = `❌ ${error.message}`;
   } finally {
