@@ -1,3 +1,46 @@
+const path = require('path');
+const fs = require('fs');
+const dotenv = require('dotenv');
+
+const rootDir = path.resolve(__dirname, '..');
+const localEnvPath = path.resolve(rootDir, '.env.local');
+const envPath = path.resolve(rootDir, '.env');
+
+console.log('records.js rootDir=', rootDir);
+console.log('records.js localEnvPath=', localEnvPath);
+console.log('records.js envPath=', envPath);
+console.log('.env.local exists=', fs.existsSync(localEnvPath));
+console.log('.env exists=', fs.existsSync(envPath));
+console.log('.env.local content start----');
+if (fs.existsSync(localEnvPath)) console.log(fs.readFileSync(localEnvPath, 'utf8'));
+console.log('.env.local content end----');
+
+const localResult = dotenv.config({ path: localEnvPath });
+console.log('dotenv localResult=', localResult);
+const envResult = dotenv.config({ path: envPath });
+console.log('dotenv envResult=', envResult);
+console.log('after dotenv load SUPABASE_URL=', JSON.stringify(process.env.SUPABASE_URL));
+console.log('after dotenv load SUPABASE_KEY=', JSON.stringify(process.env.SUPABASE_SERVICE_ROLE_KEY));
+
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const index = trimmed.indexOf('=');
+    if (index === -1) continue;
+    const key = trimmed.slice(0, index).trim();
+    const value = trimmed.slice(index + 1).trim();
+    if (!(key in process.env)) {
+      process.env[key] = value;
+    }
+  }
+}
+
+loadEnvFile(localEnvPath);
+loadEnvFile(envPath);
+
 const { createClient } = require("@supabase/supabase-js");
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -48,7 +91,9 @@ async function handleGet(req, res) {
     query = query.eq("type", type);
   }
 
-  const { data, error } = await query;
+  const result = await query;
+  const data = result.data || [];
+  const error = result.error;
   if (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -70,12 +115,19 @@ async function handlePost(req, res) {
     return res.status(400).json({ error: "缺少必要打卡資料" });
   }
 
-  const { data, error } = await supabase.from(TABLE_NAME).insert([
+  const result = await supabase.from(TABLE_NAME).insert([
     { date, role, person, vehicle: vehicle || "", type, time },
   ]);
 
+  const data = result.data;
+  const error = result.error;
+
   if (error) {
     return res.status(500).json({ error: error.message });
+  }
+
+  if (!data || data.length === 0) {
+    return res.status(500).json({ error: "Insert returned no data" });
   }
 
   return res.status(201).json(data[0]);
@@ -108,9 +160,10 @@ module.exports = async (req, res) => {
         }
 
         try {
-          const pingRes = await fetch(SUPABASE_URL, { method: 'GET' });
+          const healthUrl = `${SUPABASE_URL.replace(/\/+$/, '')}/auth/v1/health`;
+          const pingRes = await fetch(healthUrl, { method: 'GET' });
           const text = await (pingRes.text().catch(() => ''));
-          return res.status(200).json({ ok: true, status: pingRes.status, host: urlObj.hostname, dns: dnsInfo, bodyPreview: text.slice(0, 200) });
+          return res.status(200).json({ ok: true, status: pingRes.status, healthUrl, host: urlObj.hostname, dns: dnsInfo, bodyPreview: text.slice(0, 200) });
         } catch (e) {
           return res.status(500).json({ error: 'Supabase connectivity test failed', message: e.message, stack: e.stack ? e.stack.split('\n').slice(0,5) : undefined, host: urlObj.hostname, dns: dnsInfo });
         }
