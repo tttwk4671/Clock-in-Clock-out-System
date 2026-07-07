@@ -117,10 +117,10 @@ async function handlePost(req, res) {
     return res.status(400).json({ error: "缺少必要打卡資料" });
   }
 
-  console.log('Calling supabase.from(TABLE_NAME).insert()...');
+  console.log('Calling supabase.from(TABLE_NAME).insert().select()...');
   const result = await supabase.from(TABLE_NAME).insert([
     { date, role, person, vehicle: vehicle || "", type, time },
-  ]);
+  ]).select();
 
   console.log('Insert result:', { data: result.data, error: result.error });
 
@@ -194,3 +194,4 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 };
+
