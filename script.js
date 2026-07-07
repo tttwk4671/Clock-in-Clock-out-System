@@ -79,10 +79,11 @@ async function saveRecord(record) {
     },
     body: JSON.stringify(record),
   });
+  const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error("儲存失敗");
+    throw new Error(data?.error || data?.message || `儲存失敗 (${response.status})`);
   }
-  return response.json();
+  return data;
 }
 
 async function clearAllRecords() {
