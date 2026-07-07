@@ -9,6 +9,7 @@ const vehicleRow = document.getElementById("vehicleRow");
 const vehicleSelect = document.getElementById("vehicleSelect");
 const companionRow = document.getElementById("companionRow");
 const companionSelect = document.getElementById("companionSelect");
+const remarksInput = document.getElementById("remarksInput");
 const searchPersonInput = document.getElementById("searchPersonInput");
 const recordTypeSelect = document.getElementById("recordTypeSelect");
 
@@ -134,7 +135,7 @@ async function renderRecords() {
   recordsTableBody.innerHTML = "";
   if (records.length === 0) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td colspan="6" style="text-align:center; padding: 20px; color: #8c98a8;">目前沒有符合條件的打卡紀錄</td>`;
+    row.innerHTML = `<td colspan="8" style="text-align:center; padding: 20px; color: #8c98a8;">目前沒有符合條件的打卡紀錄</td>`;
     recordsTableBody.appendChild(row);
     return;
   }
@@ -145,6 +146,8 @@ async function renderRecords() {
       <td>${record.role === "hospital" ? "醫院" : record.role === "caregiver" ? "民護" : "救護車"}</td>
       <td>${record.person}</td>
       <td>${record.vehicle || "-"}</td>
+      <td>${record.companion || "-"}</td>
+      <td>${record.remarks || "-"}</td>
       <td>${record.type === "in" ? "上班" : "下班"}</td>
       <td>${record.time}</td>
     `;
@@ -157,6 +160,7 @@ async function addRecord(type) {
   const person = personSelect.value;
   const vehicle = role === "caregiver" ? vehicleSelect.value : "";
   const companion = role === "caregiver" ? companionSelect.value : "";
+  const remarks = remarksInput.value.trim();
   if (!person) {
     statusMessage.textContent = "請先選擇人員。";
     return;
@@ -174,7 +178,7 @@ async function addRecord(type) {
     day: "2-digit",
   });
   const time = formatDateTime(now).split(" ")[1];
-  const newRecord = { date, role, person, vehicle, companion, type, time };
+  const newRecord = { date, role, person, vehicle, companion, remarks, type, time };
   try {
     await saveRecord(newRecord);
     statusMessage.textContent = "⏳ 正在重新載入...";
@@ -182,7 +186,9 @@ async function addRecord(type) {
     const roleLabel = role === "hospital" ? "醫院" : role === "caregiver" ? "民護" : "救護車";
     const vehicleLabel = role === "caregiver" && vehicle ? `，車輛 ${vehicle}` : "";
     const companionLabel = role === "caregiver" && companion ? `，隨車人員 ${companion}` : "";
-    statusMessage.textContent = `✅ ${roleLabel}：${person}${vehicleLabel}${companionLabel}，已記錄${type === "in" ? "上班" : "下班"}時間 ${time}`;
+    const remarksLabel = remarks ? `，備註 ${remarks}` : "";
+    statusMessage.textContent = `✅ ${roleLabel}：${person}${vehicleLabel}${companionLabel}${remarksLabel}，已記錄${type === "in" ? "上班" : "下班"}時間 ${time}`;
+    remarksInput.value = "";
   } catch (error) {
     statusMessage.textContent = `❌ ${error.message}`;
   } finally {
