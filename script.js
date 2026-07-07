@@ -79,10 +79,11 @@ async function saveRecord(record) {
     },
     body: JSON.stringify(record),
   });
+  const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error("儲存失敗");
+    throw new Error(data?.error || data?.message || `儲存失敗 (${response.status})`);
   }
-  return response.json();
+  return data;
 }
 
 async function clearAllRecords() {
@@ -135,6 +136,11 @@ async function addRecord(type) {
     return;
   }
 
+  // 禁用按鈕，顯示處理中
+  clockInButton.disabled = true;
+  clockOutButton.disabled = true;
+  statusMessage.textContent = "⏳ 正在提交...";
+
   const now = new Date();
   const date = now.toLocaleDateString("zh-TW", {
     year: "numeric",
@@ -145,12 +151,17 @@ async function addRecord(type) {
   const newRecord = { date, role, person, vehicle, type, time };
   try {
     await saveRecord(newRecord);
+    statusMessage.textContent = "⏳ 正在重新載入...";
     await renderRecords();
     const roleLabel = role === "hospital" ? "醫院" : role === "caregiver" ? "民護" : "救護車";
     const vehicleLabel = role === "caregiver" ? `，車號 ${vehicle}` : "";
-    statusMessage.textContent = `${roleLabel}：${person}${vehicleLabel}，已記錄${type === "in" ? "上班" : "下班"}時間 ${time}`;
+    statusMessage.textContent = `✅ ${roleLabel}：${person}${vehicleLabel}，已記錄${type === "in" ? "上班" : "下班"}時間 ${time}`;
   } catch (error) {
-    statusMessage.textContent = error.message;
+    statusMessage.textContent = `❌ ${error.message}`;
+  } finally {
+    // 重新啟用按鈕
+    clockInButton.disabled = false;
+    clockOutButton.disabled = false;
   }
 }
 

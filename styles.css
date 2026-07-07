@@ -80,8 +80,14 @@ button {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .primary {
