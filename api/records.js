@@ -111,25 +111,33 @@ async function handleGet(req, res) {
 async function handlePost(req, res) {
   const { date, role, person, vehicle, type, time } = req.body;
 
+  console.log('handlePost received:', { date, role, person, vehicle, type, time });
+
   if (!date || !role || !person || !type || !time) {
     return res.status(400).json({ error: "缺少必要打卡資料" });
   }
 
+  console.log('Calling supabase.from(TABLE_NAME).insert()...');
   const result = await supabase.from(TABLE_NAME).insert([
     { date, role, person, vehicle: vehicle || "", type, time },
   ]);
+
+  console.log('Insert result:', { data: result.data, error: result.error });
 
   const data = result.data;
   const error = result.error;
 
   if (error) {
+    console.error('Insert error:', error.message, error);
     return res.status(500).json({ error: error.message });
   }
 
   if (!data || data.length === 0) {
+    console.error('Insert returned no data');
     return res.status(500).json({ error: "Insert returned no data" });
   }
 
+  console.log('Insert successful, returning:', data[0]);
   return res.status(201).json(data[0]);
 }
 
