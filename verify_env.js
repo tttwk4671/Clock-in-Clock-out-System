@@ -1,0 +1,13 @@
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
+const localEnvPath = path.resolve(__dirname, '.env.local');
+console.log('env path:', localEnvPath);
+console.log('exists:', fs.existsSync(localEnvPath));
+console.log('file content:');
+console.log(fs.readFileSync(localEnvPath, 'utf8'));
+const result = dotenv.config({ path: localEnvPath });
+console.log('parsed:', result.parsed);
+console.log('error:', result.error);
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'unset');
