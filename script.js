@@ -74,18 +74,13 @@ async function loadRecords(searchText = "", typeFilter = "all") {
 async function saveRecord(record) {
   const response = await fetch(API_BASE, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(record),
   });
-  const data = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(data?.error || data?.message || `儲存失敗 (${response.status})`);
-  }
+  const data = await response.json().catch(()=>null);
+  if (!response.ok) throw new Error(data?.error || data?.message || `儲存失敗 (${response.status})`);
   return data;
 }
-
 async function clearAllRecords() {
   const response = await fetch(API_BASE, {
     method: "DELETE",
